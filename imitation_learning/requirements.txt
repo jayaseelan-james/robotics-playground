@@ -1,0 +1,19 @@
+# Core
+mujoco>=3.3
+numpy>=1.24
+torch>=2.2
+
+# Visualisation
+matplotlib>=3.7
+
+# Headless rendering
+# env.render() needs an OpenGL context. Pick a backend before importing mujoco:
+#
+#   export MUJOCO_GL=glfw     # desktop with a display  (default)
+#   export MUJOCO_GL=egl      # headless machine WITH a GPU   -> fast
+#   export MUJOCO_GL=osmesa   # headless machine WITHOUT a GPU -> software, slow
+#
+# For osmesa on Debian/Ubuntu:   sudo apt-get install libosmesa6
+# For egl   on Debian/Ubuntu:    sudo apt-get install libegl1 libgl1-mesa-dev
+#
+# Everything except rendering runs fine with no GL backend at all.
