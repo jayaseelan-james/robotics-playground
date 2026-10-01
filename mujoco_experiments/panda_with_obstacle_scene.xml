@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="panda pick and place with obstacle scene">
+  <include file="franka_emika_panda/panda.xml"/>
+
+  <compiler meshdir="franka_emika_panda/assets"/>
+
+  <!--
+    * cone="elliptic" + impratio=10 make friction cones much less likely to slip under tangential load.
+      This is the single most important setting for reliable parallel-jaw grasping in MuJoCo; with the 
+      default pyramidal cone and impratio=1, a 4 cm cube tends to squirt out of the fingers.
+    * noslip_iterations adds a post-solve pass that kills residual drift of a grasped object.
+  -->
+  <option timestep="0.002" cone="elliptic" impratio="10" noslip_iterations="5" noslip_tolerance="1e-6"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.35 0.35 0.35" specular="0.1 0.1 0.1"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="135" elevation="-25" offwidth="1280" offheight="960"/>
+    <quality shadowsize="2048"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4"
+             rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.1"/>
+    <material name="table_mat" rgba="0.45 0.30 0.18 1" specular="0.05" shininess="0.05"/>
+    <material name="obstacle_mat" rgba="0.75 0.15 0.15 1"/>
+    <material name="bin_mat" rgba="0.2 0.5 0.75 0.55"/>
+    <material name="cube_mat" rgba="0.1 0.8 0.1 1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.6" dir="0 0 -1" directional="true" castshadow="false"/>
+    <light pos="0.4 0 1.2" dir="-0.3 0 -1" directional="true"/>
+
+    <camera name="front" pos="1.35 -0.95 0.95" xyaxes="0.6 0.8 0 -0.35 0.26 0.90"/>
+    <camera name="top" pos="0.45 -0.05 1.35" xyaxes="1 0 0 0 1 0"/>
+    <!-- `track` keeps the cube centred: mode="targetbody" recomputes the camera orientation every frame. -->
+    <camera name="track" pos="1.25 -0.85 0.80" mode="targetbody" target="cube"/>
+    
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
+    <!-- Table: top surface sits exactly at z=0.04 -->
+    <body name="table" pos="0.45 0 0.02">
+      <geom name="table_top" type="box" size="0.3 0.5 0.02" material="table_mat"/>
+    </body>
+
+    <!-- Obstacle wall: separates the pick region from the place/bin region. -->
+    <body name="obstacle" pos="0.5 -0.02 0.12">
+      <geom name="obstacle_wall" type="box" size="0.16 0.02 0.08" material="obstacle_mat"/>
+    </body>
+
+    <!-- Target bin: an open-top box built from 5 static walls -->
+    <body name="bin" pos="0.5 0.27 0.04" mocap="true">
+      <geom name="bin_floor" type="box" size="0.073 0.073 0.004" pos="0 0 0.004" material="bin_mat" friction="1 0.05 0.001"/>
+      <geom name="bin_xp" type="box" size="0.008 0.073 0.025" pos="0.065 0 0.033" material="bin_mat"/>
+      <geom name="bin_xn" type="box" size="0.008 0.073 0.025" pos="-0.065 0 0.033" material="bin_mat"/>
+      <geom name="bin_yp" type="box" size="0.073 0.008 0.025" pos="0 0.065 0.033" material="bin_mat"/>
+      <geom name="bin_yn" type="box" size="0.073 0.008 0.025" pos="0 -0.065 0.033" material="bin_mat"/>
+      <site name="bin_target" pos="0 0 0.03" size="0.012" rgba="0.2 0.9 0.4 0.35"/>
+    </body>
+
+    <!-- The cube: free joint so it can be picked up. Position/color are randomized at reset time -->
+    <body name="cube" pos="0.5 -0.3 0.02">
+      <freejoint name="cube_joint"/>
+      <inertial pos="0 0 0" mass="0.05" diaginertia="0.00001333 0.00001333 0.00001333"/>
+      <geom name="cube_geom" type="box" size="0.02 0.02 0.02" material="cube_mat" friction="1.5 0.05 0.001"
+            solref="0.008 1" solimp="0.95 0.99 0.001" condim="4" priority="1"/>
+      <site name="cube_site" pos="0 0 0" size="0.005" rgba="1 1 1 0.0"/>
+    </body>
+  </worldbody>
+
+  <keyframe>
+    <key name="start" qpos="0 -0.35 0 -2.0 0 1.6 0.78 0.04 0.04  0.45 -0.27 0.02 1 0 0 0" ctrl="0 -0.35 0 -2.0 0 1.6 0.78 255"/>
+  </keyframe>
+</mujoco>
