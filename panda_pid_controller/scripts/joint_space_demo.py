@@ -1,8 +1,10 @@
 """
 Joint-space control: plan a quintic joint trajectory and track it with the joint-space PID controller.
 
-A plot is written to ``results/joint_space.png``.
+A plot is written to ``results/joint_space_<timestamp>.png``.
 """
+import time
+
 import numpy as np
 
 from _common import RESULTS, base_parser, viewer_callback
@@ -39,7 +41,7 @@ def main():
             log = run_joint_space(env, ctrl, ref, args.total, gravity_comp=not args.no_gravity_comp, callback=cb)
     except KeyboardInterrupt:
         return
-    path = plot_joint_log(log, RESULTS / "joint_space.png")
+    path = plot_joint_log(log, RESULTS / f"joint_space_{time.strftime('%Y%m%d-%H%M%S')}.png")
     err = np.abs(log.joint_error())
     print(f"Max tracking error : {err.max():.4f} rad")
     print(f"Final error        : {err[-1].max():.2e} rad")

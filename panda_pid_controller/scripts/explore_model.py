@@ -28,7 +28,7 @@ def main():
     print(f"Flange position (world) : {pf}")
     print(f"Gravity torque g(q)     : {env.gravity_torque()}")
 
-    print("\n== Your forward kinematics vs. MuJoCo (random configurations) ==")
+    print("\n== My Forward Kinematics vs. MuJoCo (random configurations) ==")
     rng = np.random.default_rng(0)
     worst = 0.0
     for _ in range(100):

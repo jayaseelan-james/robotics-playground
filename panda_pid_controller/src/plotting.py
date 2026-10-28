@@ -1,8 +1,4 @@
-"""
-Plot helpers for the demo scripts.
-
-Both functions save a PNG and never open a window.
-"""
+"""Plot helpers for the demo scripts."""
 from __future__ import annotations
 
 from pathlib import Path

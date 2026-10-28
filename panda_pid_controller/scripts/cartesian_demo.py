@@ -7,8 +7,10 @@ Cartesian-space PID control: the TCP follows a straight line or a circle.
     python scripts/cartesian_demo.py --payload 20                   # carry an unknown 20 N payload ...
     python scripts/cartesian_demo.py --payload 20 --ki-pos 0 --ki-rot 0   # ... without integral action: it sags
 
-A plot is written to ``results/cartesian_<traj>.png``.
+A plot is written to ``results/cartesian_<traj>_<timestamp>.png``.
 """
+import time
+
 import numpy as np
 from scipy.spatial.transform import Rotation as Rot
 
@@ -57,7 +59,7 @@ def main():
             log = run_cartesian(env, ctrl, traj.evaluate, args.duration + 3.0, callback=cb, external_force=np.array([0.0, 0.0, -args.payload]), **kw)
     except KeyboardInterrupt:
         return
-    path = plot_cartesian_log(log, RESULTS / f"cartesian_{args.traj}.png", title=f"Cartesian PID - {args.traj}")
+    path = plot_cartesian_log(log, RESULTS / f"cartesian_{args.traj}_{time.strftime('%Y%m%d-%H%M%S')}.png", title=f"Cartesian PID - {args.traj}")
     print(f"position RMSE      : {1e3 * rmse(log.position_error()):.2f} mm")
     print(f"final pos / rot err: {1e3 * log.position_error()[-1]:.3f} mm / {log.orientation_error()[-1]:.5f} rad")
     print(f"plot saved to {path}")
